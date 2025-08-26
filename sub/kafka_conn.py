@@ -9,10 +9,10 @@ class KafkaConn():
         
     
     def get_consumer_event(self):
-        consumer_events = KafkaConsumer(
+        consumer_event = KafkaConsumer(
             self.topic,
             group_id=f'{self.topic}-group',
-            value_deserializer=lambda m: json.loads(m.decode('ascii')),
+            value_deserializer=lambda m: m.decode('utf-8'),
             bootstrap_servers= os.getenv('BOOTSTRP_SERVER'),
-            consumer_timeout_ms=10000)
-        return consumer_events
+            consumer_timeout_ms=60000)
+        return consumer_event

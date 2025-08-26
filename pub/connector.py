@@ -7,8 +7,7 @@ class Connector():
     def __init__(self):
         self.producer = KafkaProducer(
             bootstrap_servers=os.getenv('BOOTSTRP_SERVER'),
-            value_serializer=lambda x:
-            json.dumps(x).encode('utf-8')
+            value_serializer=lambda x: x.encode('utf-8')
             )
         
 
@@ -16,7 +15,6 @@ class Connector():
         try:
             self.producer.send(topic, message)
             self.producer.flush()
-            # print(f"Publis seccessfully to {topic}")
         except Exception as e:
             print("Error publishing")
             print(e)
