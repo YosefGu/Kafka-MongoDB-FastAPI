@@ -1,0 +1,50 @@
+docker build -t pub-server:1.0 . 
+
+docker network create kafka-net
+
+docker run -d --name kafka-2 --network kafka-net `
+  -p 9093:9092 `
+  -e ALLOW_PLAINTEXT_LISTENER=yes `
+  -e KAFKA_BROKER_ID=1 `
+  -e KAFKA_CFG_NODE_ID=1 `
+  -e KAFKA_CFG_PROCESS_ROLES=broker,controller `
+  -e KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093 `
+  -e KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-2:9092 `
+  -e KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER `
+  -e KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka-2:9093 `
+  -e KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT `
+  bitnami/kafka:3.5
+
+docker run -d --name pub-server --network kafka-net `
+  -p 8005:8005 `
+  -e BOOTSTRAP_SERVER=kafka-2:9092 `
+  pub-server:1.0
+
+docker run -d --name kafka-mongodb --network kafka-net `
+  -e MONGO_INITDB_ROOT_USERNAME=admin `
+  -e MONGO_INITDB_ROOT_PASSWORD=secret `
+  -p 27018:27017 `
+  mongodb/mongodb-community-server:latest
+
+docker build -t sub-server:1.0 . 
+
+docker run -d --name sub-server --network kafka-net `
+  -p 8006:8006 `
+  -e BOOTSTRAP_SERVER=kafka-2:9092 `
+  -e MONGO_HOST=kafka-mongodb `
+  -e MONGO_USER=admin `
+  -e MONGO_PASSWORD=secret `
+  -e TOPIC=interesting `
+  sub-server:1.0
+
+docker run -d --name sub-server-2 --network kafka-net `
+  -p 8007:8007 `
+  -e BOOTSTRAP_SERVER=kafka-2:9092 `
+  -e MONGO_HOST=kafka-mongodb `
+  -e MONGO_USER=admin `
+  -e MONGO_PASSWORD=secret `
+  -e TOPIC=not_interesting `
+  sub-server:1.0
+
+
+
