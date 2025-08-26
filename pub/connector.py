@@ -6,7 +6,7 @@ class Connector():
 
     def __init__(self):
         self.producer = KafkaProducer(
-            bootstrap_servers=os.getenv('BOOTSTRP_SERVER'),
+            bootstrap_servers=os.getenv('BOOTSTRAP_SERVER'),
             value_serializer=lambda x: x.encode('utf-8')
             )
         
