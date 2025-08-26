@@ -39,11 +39,11 @@ class Fetching():
     
     def get_20_messages(self):
         try:
-            interesting = {}
-            not_interesting = {}
+            interesting = []
+            not_interesting = []
             for i in range(10):
-                interesting[i + 1] = self.interesting.data.pop(0)
-                not_interesting[i + 1] = self.not_interesting.data.pop(0)
+                interesting.append(self.interesting.data.pop(0))
+                not_interesting.append(self.not_interesting.data.pop(0))
             return {"interesting" : interesting, "not_interesting" : not_interesting}
         except Exception as e:
             print(e)
