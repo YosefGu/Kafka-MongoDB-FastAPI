@@ -23,10 +23,11 @@ def home():
     return {"Active" : "Server is running"}
 
 @app.get('/publish-data')
-def get_data():
+def publish_data():
     data = fetching.get_20_messages()
-    connector.publish_message(os.getenv('TOPIC_1'), data['interesting'])
-    connector.publish_message(os.getenv('TOPIC_2'), data['not_interesting'])
+    for i in range(10):
+        connector.publish_message(os.getenv('TOPIC_1'), data['interesting'].pop(0))
+        connector.publish_message(os.getenv('TOPIC_2'), data['not_interesting'].pop(0))
     return {"responce" : "Publishing went seccessfully."}
 
 if __name__ == "__main__":
