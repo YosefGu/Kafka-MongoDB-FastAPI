@@ -15,7 +15,7 @@ class KafkaConn():
         
     
     def get_consumer_event(self):
-        data = self.consumer.poll(timeout_ms=10000, max_records=10)
+        data = self.consumer.poll(timeout_ms=5000, max_records=10)
         all_messages = []
         for record in data.values():
             all_messages.extend(record)
