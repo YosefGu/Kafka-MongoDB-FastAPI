@@ -46,5 +46,4 @@ class Fetching():
                 not_interesting.append(self.not_interesting.data.pop(0))
             return {"interesting" : interesting, "not_interesting" : not_interesting}
         except Exception as e:
-            print(e)
             return {"Error" : "error getting messages."}
