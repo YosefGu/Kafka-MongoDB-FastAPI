@@ -19,16 +19,19 @@ def home():
 
 @app.get('/pull-data')
 def pull_data():
-    # try:
-    events = consumer.get_consumer_event()
-    messages = []
-    # print(events.value)
-    for message in events:
-        messages.append(message.value)
-    mongodb_client.save_data(os.getenv('TOPIC_1'), messages)
-    return {"responce" : "pulling and saving data went seccessfully.", "messages" : messages}
-    # except Exception as e:
-    #     return {"responce" : "Error geting data from kafka, maybe you pulled all."}
+    try:
+        events = consumer.get_consumer_event()
+        messages = []
+        for message in events:
+            messages.append(message.value)
+        if not messages:
+            return {"responce" : "No data in kafka topic."}
+        
+        mongodb_client.save_data(os.getenv('TOPIC_1'), messages)
+        return {"responce" : "pulling and saving data went seccessfully.", "messages" : messages}
+    except Exception as e:
+        print(e)
+        return {"Message" : "Error geting data from kafka", "Error" : e}
 
 @app.get('/get-data')
 def get_data():
@@ -38,8 +41,8 @@ def get_data():
         for doc in cursor:
            list_result.append(doc)
         return {"responce" : f"get data from {os.getenv('TOPIC_1')} collection went seccessfully.", "data" : list_result}
-    except:
-        return {"Error" : "error geting data from mongodb."}
+    except Exception as e:
+        return {"Message" : "error geting data from mongodb.", "Error": e }
 
 
 if __name__ == "__main__":
