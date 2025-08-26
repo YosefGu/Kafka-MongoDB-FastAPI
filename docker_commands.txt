@@ -38,7 +38,7 @@ docker run -d --name sub-server --network kafka-net `
   sub-server:1.0
 
 docker run -d --name sub-server-2 --network kafka-net `
-  -p 8007:8007 `
+  -p 8007:8006 `
   -e BOOTSTRAP_SERVER=kafka-2:9092 `
   -e MONGO_HOST=kafka-mongodb `
   -e MONGO_USER=admin `
