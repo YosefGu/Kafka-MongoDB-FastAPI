@@ -3,10 +3,13 @@ import uvicorn
 from dotenv import load_dotenv
 import os
 from kafka_conn import KafkaConn
+from mongodb_client import MongodbClient
+
 
 load_dotenv()
 
 consumer = KafkaConn(os.getenv('TOPIC_1'))
+mongodb_client = MongodbClient()
 
 app = FastAPI()
 
@@ -16,19 +19,28 @@ def home():
 
 @app.get('/pull-data')
 def pull_data():
-    try:
-        events = consumer.get_consumer_event()
-        messages = []
-        for message in events:
-            messages.append(message.value)
-        return {"responce" : "pulling seccessfully.", "data" : messages}
-    except Exception as e:
-        print("Error pulling data.")
-        print(e)
+    # try:
+    events = consumer.get_consumer_event()
+    messages = []
+    # print(events.value)
+    for message in events:
+        messages.append(message.value)
+    mongodb_client.save_data(os.getenv('TOPIC_1'), messages)
+    return {"responce" : "pulling and saving data went seccessfully.", "messages" : messages}
+    # except Exception as e:
+    #     return {"responce" : "Error geting data from kafka, maybe you pulled all."}
 
 @app.get('/get-data')
 def get_data():
-   pass
+    try:
+        cursor = mongodb_client.get_all_data(os.getenv('TOPIC_1'))
+        list_result = []
+        for doc in cursor:
+           list_result.append(doc)
+        return {"responce" : f"get data from {os.getenv('TOPIC_1')} collection went seccessfully.", "data" : list_result}
+    except:
+        return {"Error" : "error geting data from mongodb."}
+
 
 if __name__ == "__main__":
     try:
