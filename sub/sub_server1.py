@@ -1,17 +1,20 @@
 from fastapi import FastAPI
-import uvicorn
-from dotenv import load_dotenv
 import os
 from kafka_conn import KafkaConn
 from mongodb_client import MongodbClient
 
-
-load_dotenv()
-
-consumer = KafkaConn(os.getenv('TOPIC_1'))
-mongodb_client = MongodbClient()
-
 app = FastAPI()
+
+consumer = None
+mongodb_client = None
+
+@app.on_event("startup")
+def startup_event():
+    global consumer, mongodb_client
+    consumer = KafkaConn(os.getenv('TOPIC'))
+    mongodb_client = MongodbClient()
+
+
 
 @app.get('/')
 def home():
@@ -27,27 +30,20 @@ def pull_data():
         if not messages:
             return {"responce" : "No data in kafka topic."}
         
-        mongodb_client.save_data(os.getenv('TOPIC_1'), messages)
+        mongodb_client.save_data(os.getenv('TOPIC'), messages)
         return {"responce" : "pulling and saving data went seccessfully.", "messages" : messages}
     except Exception as e:
-        print(e)
-        return {"Message" : "Error geting data from kafka", "Error" : e}
+        return {"Message" : "Error geting data from kafka", "Error" : str(e)}
 
 @app.get('/get-data')
 def get_data():
     try:
-        cursor = mongodb_client.get_all_data(os.getenv('TOPIC_1'))
+        cursor = mongodb_client.get_all_data(os.getenv('TOPIC'))
         list_result = []
         for doc in cursor:
            list_result.append(doc)
-        return {"responce" : f"get data from {os.getenv('TOPIC_1')} collection went seccessfully.", "data" : list_result}
+        return {"responce" : f"get data from {os.getenv('TOPIC')} collection went seccessfully.", "data" : list_result}
     except Exception as e:
-        return {"Message" : "error geting data from mongodb.", "Error": e }
+        return {"Message" : "error geting data from mongodb.", "Error": str(e) }
 
-
-if __name__ == "__main__":
-    try:
-        uvicorn.run(app, port=8002)
-    except Exception as e:
-        print("Error running server")
         
