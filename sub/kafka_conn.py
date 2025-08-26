@@ -10,7 +10,7 @@ class KafkaConn():
             self.topic,
             group_id=f'{self.topic}-group',
             value_deserializer=lambda m: m.decode('utf-8'),
-            bootstrap_servers= os.getenv('BOOTSTRP_SERVER'),
+            bootstrap_servers= os.getenv('BOOTSTRAP_SERVER'),
             )
         
     
